@@ -1,0 +1,18 @@
+[Unit]
+Description=Patroni - PostgreSQL HA Manager
+After=network.target etcd.service
+Wants=etcd.service
+
+[Service]
+Type=simple
+User=postgres
+Group=postgres
+ExecStart=/opt/patroni/venv/bin/patroni /etc/patroni.yml
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+TimeoutSec=30
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

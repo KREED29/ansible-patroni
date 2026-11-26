@@ -1,0 +1,10 @@
+---
+haproxy_primary_port: 5000 # сюда клиенты подключаются, HAProxy роутит на актуальный Primary
+haproxy_replicas_port: 5001 # для read-only трафика на реплики
+haproxy_stats_port: 7000
+patroni_restapi_port: 8008 # порт, по которому HAProxy проверяет статус
+
+keepalived_vip: 192.168.31.100
+keepalived_interface: enp0s3
+keepalived_virtual_router_id: 51
+keepalived_auth_pass: "ChangeMeAuthPass"

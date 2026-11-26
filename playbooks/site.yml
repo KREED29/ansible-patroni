@@ -1,0 +1,29 @@
+# playbooks/site.yml
+---
+- name: Deploy etcd cluster
+  hosts: postgres_cluster
+  become: true
+  tags: etcd_setup
+  roles:
+    - etcd
+
+- name: Deploy PostgreSQL
+  hosts: postgres_cluster
+  become: true
+  tags: db_setup
+  roles:
+    - postgresql
+
+- name: Deploy Patroni
+  hosts: postgres_cluster
+  become: true
+  tags: patroni_setup
+  roles:
+    - patroni
+
+- name: Deploy HAProxy
+  hosts: haproxy
+  become: true
+  tags: haproxy_setup
+  roles:
+    - haproxy

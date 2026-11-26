@@ -1,0 +1,15 @@
+[postgres_cluster]
+pg-node-01 ansible_host=10.221.254.130 ansible_port=2222 node_id=1 cluster_ip=192.168.31.135 patroni_name=node1
+pg-node-02 ansible_host=10.221.254.130 ansible_port=2223 node_id=2 cluster_ip=192.168.31.166 patroni_name=node2
+pg-node-03 ansible_host=10.221.254.130 ansible_port=2224 node_id=3 cluster_ip=192.168.31.150 patroni_name=node3
+
+[haproxy]
+haproxy-01 ansible_host=10.221.254.130 ansible_port=2225 cluster_ip=192.168.31.200 haproxy_role=MASTER priority=101
+haproxy-02 ansible_host=10.221.254.130 ansible_port=2226 cluster_ip=192.168.31.250 haproxy_role=BACKUP priority=100
+
+[all:vars]
+ansible_user=kreed29
+ansible_ssh_private_key_file=~/.ssh/ci_cd_wf
+ansible_become=true
+ansible_become_method=sudo
+ansible_python_interpreter=/usr/bin/python3

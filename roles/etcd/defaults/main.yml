@@ -1,0 +1,6 @@
+---
+etcd_version: "3.5.16"
+etcd_client_port: 2379
+etcd_peer_port: 2380
+etcd_cluster_token: "etcd-cluster"
+etcd_data_dir: /var/lib/etcd

@@ -1,0 +1,29 @@
+---
+- name: Install etcd
+  ansible.builtin.apt:
+    name: etcd-server
+    state: present
+    update_cache: true
+
+- name: Ensure etcd configuration directory exists
+  ansible.builtin.file:
+    path: /etc/etcd
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Template etcd configuration
+  ansible.builtin.template:
+    src: etcd.conf.yml.j2
+    dest: /etc/etcd/etcd.conf.yml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart etcd
+
+- name: Ensure etcd is running
+  ansible.builtin.service:
+    name: etcd
+    state: started
+    enabled: true

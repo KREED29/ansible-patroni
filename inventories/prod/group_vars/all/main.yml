@@ -1,0 +1,33 @@
+---
+# Кластер
+cluster_name: pg-cluster
+pg_version: 17
+
+# etcd — токен берётся из vault.yml
+etcd_cluster_token: "{{ vault_etcd_cluster_token }}"
+etcd_client_port: 2379
+etcd_peer_port: 2380
+
+# Patroni — пароли берутся из vault.yml
+patroni_scope: pg-cluster
+patroni_namespace: /service/
+patroni_restapi_port: 8008
+patroni_replication_user: replicator
+patroni_replication_password: "{{ vault_patroni_replication_password }}"
+patroni_superuser_password: "{{ vault_patroni_superuser_password }}"
+
+# HAProxy — пароль из vault.yml
+haproxy_primary_port: 5000
+haproxy_replicas_port: 5001
+haproxy_stats_port: 7000
+haproxy_admin_user: admin
+haproxy_admin_password: "{{ vault_haproxy_admin_password }}"
+
+# PostgreSQL
+postgresql_parameters:
+  max_connections: 200
+  shared_buffers: 256MB
+  wal_level: replica
+  max_wal_senders: 10
+  hot_standby: "on"
+  unix_socket_directories: "/var/run/postgresql"

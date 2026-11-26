@@ -1,0 +1,42 @@
+global
+    log /dev/log local0
+    maxconn 4000
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    mode tcp
+    log global
+    timeout connect 5s
+    timeout client 30s
+    timeout server 30s
+
+# ---- Primary (read-write) ----
+listen primary
+    bind *:{{ haproxy_primary_port }}
+    option httpchk OPTIONS /primary
+    http-check expect status 200
+    default-server inter 3s fall 3 rise 2 on-marked-down shutdown-sessions
+{% for host in groups['postgres_cluster'] %}
+    server {{ host }} {{ hostvars[host]['cluster_ip'] }}:5432 maxconn 200 check port {{ patroni_restapi_port }}
+{% endfor %}
+
+# ---- Replicas (read-only) ----
+listen replicas
+    bind *:{{ haproxy_replicas_port }}
+    balance roundrobin
+    option httpchk OPTIONS /replica
+    http-check expect status 200
+    default-server inter 3s fall 3 rise 2 on-marked-down shutdown-sessions
+{% for host in groups['postgres_cluster'] %}
+    server {{ host }} {{ hostvars[host]['cluster_ip'] }}:5432 maxconn 200 check port {{ patroni_restapi_port }}
+{% endfor %}
+
+# ---- Stats ----
+listen stats
+    bind *:{{ haproxy_stats_port }}
+    mode http
+    stats enable
+    stats uri /
+    stats auth {{ haproxy_admin_user }}:{{ haproxy_admin_password }}

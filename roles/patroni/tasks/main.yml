@@ -1,0 +1,41 @@
+---
+- name: Ensure python3-venv is installed
+  ansible.builtin.apt:
+    name: python3-venv
+    state: present
+    update_cache: true
+
+- name: Install Patroni and psycopg2 driver into virtualenv
+  ansible.builtin.pip:
+    name:
+      - "patroni[etcd3]"
+      - "psycopg2-binary"
+    state: present
+    virtualenv: /opt/patroni/venv
+    virtualenv_command: python3 -m venv
+
+- name: Template Patroni systemd service
+  ansible.builtin.template:
+    src: patroni.service.j2
+    dest: /etc/systemd/system/patroni.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart patroni
+
+- name: Template Patroni configuration
+  ansible.builtin.template:
+    src: patroni.yml.j2
+    dest: /etc/patroni.yml
+    owner: postgres
+    group: postgres
+    mode: "0600"
+  notify: Restart patroni
+
+- name: Ensure Patroni is running
+  ansible.builtin.service:
+    name: patroni
+    state: started
+    enabled: true

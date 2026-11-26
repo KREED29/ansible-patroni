@@ -1,0 +1,55 @@
+scope: {{ patroni_scope }}
+namespace: {{ patroni_namespace }}
+name: {{ patroni_name | default(inventory_hostname) }}
+
+restapi:
+  listen: 0.0.0.0:{{ patroni_restapi_port }}
+  connect_address: {{ hostvars[inventory_hostname]['cluster_ip'] }}:{{ patroni_restapi_port }}
+
+etcd3:
+  hosts:
+{% for host in groups['postgres_cluster'] %}
+    - {{ hostvars[host]['cluster_ip'] }}:2379
+{% endfor %}
+
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    synchronous_mode: false
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+        wal_level: replica
+        hot_standby: "on"
+        max_wal_senders: 10
+        max_replication_slots: 10
+        wal_log_hints: "on"
+      pg_hba:
+        - "local all all peer"
+        - "host all all 127.0.0.1/32 scram-sha-256"
+        - "host all all 192.168.31.0/24 scram-sha-256"
+        - "local replication all peer"
+        - "host replication all 127.0.0.1/32 scram-sha-256"
+        - "host replication all 192.168.31.0/24 scram-sha-256"
+  initdb:
+    - encoding: UTF8
+    - data-checksums
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: {{ hostvars[inventory_hostname]['cluster_ip'] }}:5432
+  data_dir: /var/lib/postgresql/{{ pg_version }}/main
+  bin_dir: /usr/lib/postgresql/{{ pg_version }}/bin
+  parameters:
+    unix_socket_directories: '/var/run/postgresql'
+  authentication:
+    replication:
+      username: {{ patroni_replication_user }}
+      password: "{{ patroni_replication_password }}"
+    superuser:
+      username: postgres
+      password: "{{ patroni_superuser_password }}"

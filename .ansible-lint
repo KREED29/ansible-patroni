@@ -1,0 +1,5 @@
+---
+# .ansible-lint
+profile: basic
+exclude_paths:
+  - roles/geerlingguy.docker/ # если эта роль ещё установлена

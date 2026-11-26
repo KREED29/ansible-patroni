@@ -1,0 +1,5 @@
+---
+patroni_scope: "pg-cluster"
+patroni_namespace: "/service/"
+patroni_restapi_port: 8008
+patroni_replication_user: replicator

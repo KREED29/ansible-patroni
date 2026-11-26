@@ -1,0 +1,6 @@
+---
+haproxy_primary_port: 5000
+haproxy_replicas_port: 5001
+haproxy_stats_port: 7000
+haproxy_admin_user: admin
+haproxy_admin_password: "change_me"

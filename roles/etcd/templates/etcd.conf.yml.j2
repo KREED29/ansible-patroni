@@ -1,0 +1,9 @@
+name: {{ inventory_hostname }}
+data-dir: {{ etcd_data_dir }}
+listen-client-urls: http://0.0.0.0:{{ etcd_client_port }}
+advertise-client-urls: http://{{ cluster_ip }}:{{ etcd_client_port }}
+listen-peer-urls: http://0.0.0.0:{{ etcd_peer_port }}
+initial-advertise-peer-urls: http://{{ cluster_ip }}:{{ etcd_peer_port }}
+initial-cluster: {{ groups['postgres_cluster'] | map('extract', hostvars, ['cluster_ip']) | zip(groups['postgres_cluster']) | map('join', '=http://') | map('regex_replace', '$', ':{{ etcd_peer_port }}') | join(',') }}
+initial-cluster-token: {{ etcd_cluster_token }}
+initial-cluster-state: new
